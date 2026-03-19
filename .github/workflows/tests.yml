@@ -1,30 +1,36 @@
   name: Tests
+
 on:
   push:
     branches: [main, master]
   pull_request:
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, dom, curl, libxml, mysql, sqlite
+
       - name: Install Dependencies
-        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Build Assets
         run: |
+          composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           npm install
           npm run build
+
       - name: Prepare App
         run: |
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           php artisan key:generate
           mkdir -p database
           touch database/database.sqlite
+
       - name: Run Tests
         env:
           DB_CONNECTION: sqlite
